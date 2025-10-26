@@ -1,0 +1,6 @@
+archive/
+src/__pycache__/
+blueprint.md
+.venv/
+.vscode/
+.DS_Store

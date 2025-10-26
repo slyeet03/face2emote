@@ -1,0 +1,12 @@
+tensorflow-macos
+tensorflow-metal
+opencv-python
+matplotlib
+pandas
+python-mnist
+numpy
+Pillow
+seaborn
+scikit-learn
+jupyter
+ipykernel
