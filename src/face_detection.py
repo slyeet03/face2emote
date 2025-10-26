@@ -15,20 +15,19 @@ def face_detect(image):
     image.flags.writeable = True
 
     image = cv.cvtColor(image, cv.COLOR_RGB2BGR)
-
+    face_roi = image
+    x_min, x_max = int(0), int(0)
+    y_min, y_max = int(0), int(0)
+    landmarks = 0
     # Draw facial landmarks
     if results.face_landmarks:
-        drawing_utils.draw_landmarks(
-            image,
-            results.face_landmarks,
-            holistic.FACEMESH_CONTOURS,
-            drawing_utils.DrawingSpec(
-                color=(255, 0, 255), thickness=1, circle_radius=1
-            ),
-            drawing_utils.DrawingSpec(
-                color=(0, 255, 255), thickness=1, circle_radius=1
-            ),
-        )
+        h, w, _ = image.shape
+        x_coords = [lm.x * w for lm in results.face_landmarks.landmark]
+        y_coords = [lm.y * h for lm in results.face_landmarks.landmark]
+        x_min, x_max = int(min(x_coords)), int(max(x_coords))
+        y_min, y_max = int(min(y_coords)), int(max(y_coords))
+        # Crop face ROI
+        face_roi = image[y_min:y_max, x_min:x_max]
 
     # Draw right hand landmarks
     if results.right_hand_landmarks:
@@ -42,4 +41,5 @@ def face_detect(image):
             image, results.left_hand_landmarks, holistic.HAND_CONNECTIONS
         )
 
-    return image
+    return face_roi, (x_min, y_min, x_max, y_max), image, landmarks
+

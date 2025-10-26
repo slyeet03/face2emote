@@ -4,3 +4,4 @@ blueprint.md
 .venv/
 .vscode/
 .DS_Store
+utils/__pycache__/
