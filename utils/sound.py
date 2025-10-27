@@ -16,5 +16,6 @@ def get_sound_path(name):
 
 def play_sound(name):
     path = get_sound_path(name)
-    pygame.mixer.music.load(path)
-    pygame.mixer.music.play()
+    if path:
+        pygame.mixer.music.load(path)
+        pygame.mixer.music.play()

@@ -8,13 +8,16 @@ from src.face_detection import face_detect
 from src.gesture_recognition import get_hand_gesture
 from utils.config import LABELS
 from utils.sound import play_sound
+from utils.timer import update_fps
 
 prev_emotion = None
+prev_gesture = None
+
 for frame in capture_frames():
     face_roi, bbox, image, left_hand, right_hand = face_detect(frame)
     gesture = get_hand_gesture(left_hand, right_hand)
 
-    emotion = None  # default
+    emotion = None
 
     if gesture:
         emote_path = get_emote_path(None, gesture)
@@ -25,13 +28,14 @@ for frame in capture_frames():
 
         x_min, y_min, x_max, y_max = bbox
         cv.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 0, 255), 2)
+        fps = update_fps()
         cv.putText(
             image,
-            emotion,
-            (x_min, y_max + 25),
+            f"FPS: {fps:.1f}",
+            (10, 30),
             cv.FONT_HERSHEY_SIMPLEX,
             0.7,
-            (0, 0, 255),
+            (0, 255, 0),
             2,
             cv.LINE_AA,
         )
@@ -41,8 +45,11 @@ for frame in capture_frames():
         emote_path = get_emote_path(None, None)
 
     show_display(image, emote_path)
-
-    if emotion and emotion != prev_emotion:
+    
+    if gesture and gesture != prev_gesture:
+        play_sound(gesture)
+        prev_gesture=gesture
+    elif emotion and emotion != prev_emotion:
         play_sound(emotion)
         prev_emotion = emotion
 
