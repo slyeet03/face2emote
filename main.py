@@ -1,3 +1,5 @@
+import time
+
 import cv2 as cv
 
 from src.camera import capture_frames
@@ -12,48 +14,91 @@ from utils.timer import update_fps
 
 prev_emotion = None
 prev_gesture = None
+gesture_active = False
+gesture_timeout = 1.5  
+last_gesture_time = 0
 
 for frame in capture_frames():
     face_roi, bbox, image, left_hand, right_hand = face_detect(frame)
     gesture = get_hand_gesture(left_hand, right_hand)
-
     emotion = None
 
     if gesture:
+        gesture_active = True
+        last_gesture_time = time.time()
         emote_path = get_emote_path(None, gesture)
 
-    elif face_roi is not None and bbox is not None:
-        label_idx, confidence = predict(face_roi)
-        emotion = LABELS[label_idx]
+        if gesture != prev_gesture:
+            play_sound(gesture)
+            prev_gesture = gesture
 
-        x_min, y_min, x_max, y_max = bbox
-        cv.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 0, 255), 2)
-        fps = update_fps()
-        cv.putText(
-            image,
-            f"FPS: {fps:.1f}",
-            (10, 30),
-            cv.FONT_HERSHEY_SIMPLEX,
-            0.7,
-            (0, 255, 0),
-            2,
-            cv.LINE_AA,
-        )
-
-        emote_path = get_emote_path(emotion, gesture)
     else:
-        emote_path = get_emote_path(None, None)
+        if gesture_active and (time.time() - last_gesture_time > gesture_timeout):
+            gesture_active = False
+            prev_gesture = None
+
+        if not gesture_active and face_roi is not None and bbox is not None:
+            label_idx, confidence = predict(face_roi)
+            emotion = LABELS[label_idx]
+
+            x_min, y_min, x_max, y_max = bbox
+
+            cv.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 0, 255), 2)
+
+            emotion_text = f"{emotion.capitalize()}"
+            confidence_text = f"Confidence: {confidence * 100:.1f}%"
+            text_y_start = y_max + 25
+            line_height = 25
+
+            cv.putText(
+                image,
+                emotion_text,
+                (x_min, text_y_start),
+                cv.FONT_HERSHEY_SIMPLEX,
+                0.7,
+                (0, 0, 255),
+                2,
+                cv.LINE_AA,
+            )
+
+            cv.putText(
+                image,
+                confidence_text,
+                (x_min, text_y_start + line_height),
+                cv.FONT_HERSHEY_SIMPLEX,
+                0.6,
+                (0, 0, 255),
+                1,
+                cv.LINE_AA,
+            )
+
+            emote_path = get_emote_path(emotion, gesture)
+
+            if emotion != prev_emotion:
+                play_sound(emotion)
+                prev_emotion = emotion
+
+        else:
+            emote_path = get_emote_path(None, None)
+
+    fps = update_fps()
+    fps_text = f"FPS: {fps:.1f}"
+    (text_w, _), _ = cv.getTextSize(fps_text, cv.FONT_HERSHEY_SIMPLEX, 0.7, 2)
+    cv.putText(
+        image,
+        fps_text,
+        (image.shape[1] - text_w - 10, 30),
+        cv.FONT_HERSHEY_SIMPLEX,
+        0.7,
+        (0, 255, 0),
+        2,
+        cv.LINE_AA,
+    )
 
     show_display(image, emote_path)
-    
-    if gesture and gesture != prev_gesture:
-        play_sound(gesture)
-        prev_gesture=gesture
-    elif emotion and emotion != prev_emotion:
-        play_sound(emotion)
-        prev_emotion = emotion
 
     if cv.waitKey(5) & 0xFF == ord("q"):
         break
 
 cv.destroyAllWindows()
+

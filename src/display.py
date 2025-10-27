@@ -9,8 +9,9 @@ def show_display(frame, emote_path, window_name="Face2Emote"):
 
     emote_img = cv.resize(emote_img, (frame.shape[1], frame.shape[0]))
 
-    combine = np.hstack((frame, emote_img))
+    combined = np.hstack((frame, emote_img))
 
-    cv.imshow(window_name, combine)
-    cv.namedWindow("Face2Emote", cv.WINDOW_NORMAL)
-    cv.resizeWindow("Face2Emote", 1280, 480)
+    cv.namedWindow(window_name, cv.WINDOW_NORMAL)
+    cv.resizeWindow(window_name, 1280, 480)
+    cv.imshow(window_name, combined)
+
