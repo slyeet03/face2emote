@@ -41,5 +41,10 @@ def face_detect(image):
             image, results.left_hand_landmarks, holistic.HAND_CONNECTIONS
         )
 
-    return face_roi, (x_min, y_min, x_max, y_max), image, landmarks
-
+    return (
+        face_roi,
+        (x_min, y_min, x_max, y_max),
+        image,
+        results.left_hand_landmarks,
+        results.right_hand_landmarks,
+    )
