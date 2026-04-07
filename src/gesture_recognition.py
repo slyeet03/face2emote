@@ -22,20 +22,18 @@ def detect_basic_gesture(hand_landmarks):
     # 12 = Middle tip, 16 = Ring tip, 20 = Pinky tip
     # 2 = Thumb MCP (base joint)
 
-    thumb_tip = hand_landmarks.landmark[4].y
-    thumb_mcp = hand_landmarks.landmark[2].y
-    index_tip = hand_landmarks.landmark[8].y
-    middle_tip = hand_landmarks.landmark[12].y
-    ring_tip = hand_landmarks.landmark[16].y
-    pinky_tip = hand_landmarks.landmark[20].y
+    thumb_tip = hand_landmarks[4].y
+    thumb_mcp = hand_landmarks[2].y
+    index_tip = hand_landmarks[8].y
+    middle_tip = hand_landmarks[12].y
+    ring_tip = hand_landmarks[16].y
+    pinky_tip = hand_landmarks[20].y
 
-    # 👍 Thumbs up: thumb above MCP, other fingers below MCP
     if thumb_tip < thumb_mcp and all(
         f > thumb_mcp for f in [index_tip, middle_tip, ring_tip, pinky_tip]
     ):
         return "thumbs"
 
-    # Peace sign
     if (
         index_tip < thumb_mcp
         and middle_tip < thumb_mcp
