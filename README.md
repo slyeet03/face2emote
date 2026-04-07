@@ -2,6 +2,17 @@
 
 **Face2Emote** is a real-time emotion and gesture recognition system that detects your facial expressions and hand gestures using a webcam, then displays the corresponding emoji and plays matching sound effects!
 
+## Screenshots
+
+<p align="center">
+  <img src="screenshots/thumb.jpeg" width="70%" />
+</p>
+
+<p align="center">
+  <img src="screenshots/1.jpeg" width="45%" />
+  <img src="screenshots/2.jpeg" width="45%" />
+</p>
+
 ## Features
 
 **Real-time emotion detection** using a trained CNN model
